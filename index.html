@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dharshini Market | Exclusive Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bormioli:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap');
+
+        :root {
+            --gold: #d4af37;
+            --premium-black: #0a0a0b;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--premium-black);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Intro Animation Overlay */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Butterfly Container */
+        #butterfly-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .butterfly {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(212, 175, 55, 0.6);
+            border-radius: 50% 50% 0 50%;
+            transform: rotate(45deg);
+            filter: blur(1px);
+        }
+
+        /* Video Background Mask */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            overflow: hidden;
+            border-radius: 0 0 50px 50px;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6) contrast(1.2);
+        }
+
+        /* Locked Content Styling */
+        .locked-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: #161618;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .locked-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+        }
+
+        .blur-overlay {
+            backdrop-filter: blur(25px);
+            background: rgba(0,0,0,0.4);
+        }
+
+        /* Auto-Scroll Comments */
+        #comment-stream {
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stream-track {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            animation: scrollStream 40s linear infinite;
+        }
+
+        @keyframes scrollStream {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        .premium-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .gold-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Intro Intro -->
+    <div id="intro-overlay">
+        <h1 id="intro-logo" class="text-4xl md:text-6xl font-black gold-text opacity-0">DHARSHINI MARKET</h1>
+        <p id="intro-sub" class="mt-4 text-slate-400 tracking-[0.5em] opacity-0">PREMIUM ACCESS ONLY</p>
+    </div>
+
+    <!-- Butterfly Background -->
+    <div id="butterfly-container"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-[100] px-6 py-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+        <div class="text-xl font-bold gold-text">DHARSHINI</div>
+        <div class="flex items-center space-x-6">
+            <i class="fas fa-search text-slate-300"></i>
+            <div class="bg-indigo-600 px-4 py-1.5 rounded-full text-sm font-bold animate-pulse">LIVE</div>
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dharshini" class="w-10 h-10 rounded-full border-2 border-yellow-500">
+        </div>
+    </nav>
+
+    <!-- Header / Video Intro -->
+    <section class="video-container">
+        <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-lighting-in-a-dark-room-21051-large.mp4" type="video/mp4">
+        </video>
+        <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
+            <h2 class="text-5xl md:text-7xl font-extrabold mb-4">Experience <span class="gold-text">Exclusivity.</span></h2>
+            <p class="text-slate-300 max-w-xl text-lg">Resale items & private drops curated by Dharshini. Join the 1%.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-3 gap-12">
+        
+        <!-- Left: Shop & Locked Content -->
+        <div class="lg:col-span-2 space-y-12">
+            <div>
+                <h3 class="text-2xl font-bold mb-8 flex items-center">
+                    <i class="fas fa-crown text-yellow-500 mr-3"></i> Premium Drops
+                </h3>
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <!-- Standard Item -->
+                    <div class="locked-card rounded-3xl p-4">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=400" class="w-full h-48 object-cover rounded-2xl mb-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold">Retro Sneakers</span>
+                            <span class="text-yellow-500">₹4,500</span>
+                        </div>
+                    </div>
+
+                    <!-- LOCKED ITEM -->
+                    <div class="locked-card rounded-3xl p-4 relative cursor-pointer" onclick="openPaymentModal()">
+                        <div class="relative h-48 rounded-2xl overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover blur-xl">
+                            <div class="absolute inset-0 blur-overlay flex flex-col items-center justify-center text-center p-4">
+                                <i class="fas fa-lock text-3xl mb-2 text-yellow-500"></i>
+                                <p class="font-bold text-sm">PRIVATE GALLERY</p>
+                                <p class="text-[10px] text-slate-300 uppercase tracking-widest mt-1">Locked by Dharshini</p>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-yellow-500 text-black font-black py-2 rounded-xl text-sm">UNLOCK FOR ₹150</button>
+                    </div>
+
+                    <!-- Another Locked -->
+                    <div class="locked-card rounded-3xl p-4 relative cursor-pointer" onclick="openPaymentModal()">
+                        <div class="relative h-48 rounded-2xl overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1529139513477-3235a8adadad?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover blur-xl">
+                            <div class="absolute inset-0 blur-overlay flex flex-col items-center justify-center text-center p-4">
+                                <i class="fas fa-video text-3xl mb-2 text-yellow-500"></i>
+                                <p class="font-bold text-sm">BTS EXCLUSIVE VIDEO</p>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-yellow-500 text-black font-black py-2 rounded-xl text-sm">UNLOCK FOR ₹150</button>
+                    </div>
+                    
+                    <div class="locked-card rounded-3xl p-4">
+                        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=400" class="w-full h-48 object-cover rounded-2xl mb-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold">Luxury Watch</span>
+                            <span class="text-yellow-500">₹12,000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Real-time interaction -->
+        <div class="space-y-8">
+            <div class="bg-[#111113] rounded-3xl p-6 border border-slate-800">
+                <h4 class="font-bold mb-4 flex items-center justify-between">
+                    <span>Live Activity</span>
+                    <span class="text-[10px] text-green-500 bg-green-500/10 px-2 py-0.5 rounded">ONLINE</span>
+                </h4>
+                
+                <div id="comment-stream">
+                    <div class="stream-track" id="stream-track">
+                        <!-- Generated Comments -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-yellow-600 to-yellow-900 p-6 rounded-3xl premium-glow">
+                <h4 class="font-black text-xl mb-2">JOIN THE VIP CLUB</h4>
+                <p class="text-sm opacity-90 mb-4">Get early access to all resells and 20+ hidden galleries.</p>
+                <button class="w-full bg-white text-black font-bold py-3 rounded-2xl">Subscribe ₹499/mo</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
+        <div class="relative bg-[#1a1a1c] border border-yellow-500/50 p-8 rounded-[40px] max-w-sm w-full text-center">
+            <div class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-lock-open text-3xl text-yellow-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-2">Unlock Item</h3>
+            <p class="text-slate-400 text-sm mb-8">Confirm payment of <b>₹150</b> to access this exclusive piece from Dharshini's Market.</p>
+            <div class="space-y-3">
+                <button onclick="simulateSuccess()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl">PAY WITH UPI</button>
+                <button onclick="closePaymentModal()" class="w-full py-4 text-slate-500 text-sm">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toasts -->
+    <div id="booking-toast" class="fixed bottom-10 left-6 z-[300] space-y-4 pointer-events-none"></div>
+
+    <script>
+        // 1. Intro Animation
+        window.onload = () => {
+            const tl = gsap.timeline();
+            tl.to("#intro-logo", { opacity: 1, duration: 1.5, ease: "power4.out" })
+              .to("#intro-sub", { opacity: 1, duration: 1, y: -10 }, "-=0.5")
+              .to("#intro-overlay", { y: "-100%", duration: 1.2, ease: "expo.inOut", delay: 1 })
+              .from(".video-container", { scale: 1.2, duration: 2 }, "-=0.5");
+
+            initButterflies();
+            initCommentStream();
+            startBookingNotifications();
+        };
+
+        // 2. Butterfly Particles
+        function initButterflies() {
+            const container = document.getElementById('butterfly-container');
+            for(let i=0; i<15; i++) {
+                const b = document.createElement('div');
+                b.className = 'butterfly';
+                container.appendChild(b);
+                animateButterfly(b);
+            }
+        }
+
+        function animateButterfly(el) {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            
+            gsap.set(el, { x, y, scale: Math.random() * 0.5 + 0.5 });
+            
+            gsap.to(el, {
+                x: x + (Math.random() - 0.5) * 400,
+                y: y + (Math.random() - 0.5) * 400,
+                duration: Math.random() * 10 + 5,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            
+            // Flap effect
+            gsap.to(el, {
+                scaleX: 0.2,
+                duration: 0.2,
+                repeat: -1,
+                yoyo: true
+            });
+        }
+
+        // 3. Comment Stream Logic
+        const mockUsers = [
+            { name: "Rahul_01", msg: "Just unlocked the gallery, totally worth it! 🔥" },
+            { name: "Sonia.V", msg: "Is the leather jacket still in stock?" },
+            { name: "Priya_Queen", msg: "Dharshini always has the best taste. 💅" },
+            { name: "Kevin99", msg: "Sent the 150, waiting for access!" },
+            { name: "Arjun_X", msg: "The quality of these resells is insane." },
+            { name: "Vikram", msg: "Dharshini Market is my daily addiction now." }
+        ];
+
+        function initCommentStream() {
+            const track = document.getElementById('stream-track');
+            // Duplicate content for seamless loop
+            const content = [...mockUsers, ...mockUsers, ...mockUsers].map(user => `
+                <div class="flex items-start space-x-3 bg-white/5 p-3 rounded-2xl border border-white/5">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}" class="w-8 h-8 rounded-full">
+                    <div>
+                        <p class="text-[11px] font-bold gold-text">${user.name}</p>
+                        <p class="text-xs text-slate-300">${user.msg}</p>
+                    </div>
+                </div>
+            `).join('');
+            track.innerHTML = content + content;
+        }
+
+        // 4. Booking Notifications
+        function startBookingNotifications() {
+            const names = ["Anita", "Raj", "Sameer", "Monica", "Deepak", "Sneha"];
+            const products = ["Vintage Watch", "Gold Chain", "Unlocked Gallery", "Silk Scarf"];
+
+            setInterval(() => {
+                const name = names[Math.floor(Math.random()*names.length)];
+                const product = products[Math.floor(Math.random()*products.length)];
+                
+                const toast = document.createElement('div');
+                toast.className = 'bg-white text-black p-4 rounded-2xl shadow-2xl flex items-center space-x-3 transform transition-all duration-500 translate-x-[-150%]';
+                toast.innerHTML = `
+                    <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-shopping-bag text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">New Booking</p>
+                        <p class="text-xs font-bold"><b>${name}</b> just copped <b>${product}</b></p>
+                    </div>
+                `;
+                
+                document.getElementById('booking-toast').appendChild(toast);
+                
+                // Animation
+                setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(-150%)';
+                    setTimeout(() => toast.remove(), 1000);
+                }, 4000);
+
+            }, 7000);
+        }
+
+        // 5. Payment Simulation
+        function openPaymentModal() {
+            document.getElementById('payment-modal').classList.remove('hidden');
+            gsap.from("#payment-modal > div:last-child", { scale: 0.8, opacity: 0, duration: 0.4 });
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function simulateSuccess() {
+            const btn = document.querySelector('#payment-modal button');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> UNLOCKED!';
+                btn.classList.replace('bg-yellow-500', 'bg-green-500');
+                setTimeout(() => {
+                    closePaymentModal();
+                    // Reset button for next time
+                    btn.innerHTML = 'PAY WITH UPI';
+                    btn.classList.replace('bg-green-500', 'bg-yellow-500');
+                    alert("Exclusive content unlocked! Access added to your profile.");
+                }, 1500);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
+
