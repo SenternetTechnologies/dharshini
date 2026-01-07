@@ -2,382 +2,415 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dharshini Market | Exclusive Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dharshini | Official Ultra</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bormioli:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Dancing+Script:wght@700&display=swap');
 
         :root {
-            --gold: #d4af37;
-            --premium-black: #0a0a0b;
+            --primary: #ff3366;
+            --primary-light: #ff85a2;
+            --bg-bright: #f8fafc;
+            --card-white: #ffffff;
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--premium-black);
-            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-bright);
+            color: #1e293b;
             overflow-x: hidden;
         }
 
-        /* Intro Animation Overlay */
-        #intro-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: black;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .cursive { font-family: 'Dancing Script', cursive; }
+
+        /* Bright Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
         }
 
-        /* Butterfly Container */
-        #butterfly-container {
+        /* Flying Girl Mascot */
+        #mascot {
             position: fixed;
-            inset: 0;
+            width: 50px;
+            height: 50px;
+            z-index: 1000;
             pointer-events: none;
-            z-index: 50;
+            filter: drop-shadow(0 5px 15px rgba(255, 51, 102, 0.3));
         }
 
-        .butterfly {
+        /* Subscription Glow */
+        .premium-border {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(45deg, #ff3366, #ff85a2, #ffd93d) border-box;
+        }
+
+        /* Hidden Content Styling */
+        .locked-overlay {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-active {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .tab-active::after {
+            content: '';
             position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 20px;
-            height: 20px;
-            background: rgba(212, 175, 55, 0.6);
-            border-radius: 50% 50% 0 50%;
-            transform: rotate(45deg);
-            filter: blur(1px);
+            height: 3px;
+            background: var(--primary);
+            border-radius: 10px;
         }
 
-        /* Video Background Mask */
-        .video-container {
-            position: relative;
-            width: 100%;
-            height: 60vh;
-            overflow: hidden;
-            border-radius: 0 0 50px 50px;
-        }
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .video-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.6) contrast(1.2);
-        }
-
-        /* Locked Content Styling */
-        .locked-card {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            background: #161618;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .locked-card:hover {
-            border-color: var(--gold);
-            transform: translateY(-5px);
-        }
-
-        .blur-overlay {
-            backdrop-filter: blur(25px);
-            background: rgba(0,0,0,0.4);
-        }
-
-        /* Auto-Scroll Comments */
-        #comment-stream {
-            height: 400px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .stream-track {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            animation: scrollStream 40s linear infinite;
-        }
-
-        @keyframes scrollStream {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-        }
-
-        .premium-glow {
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
-        }
-
-        .gold-text {
-            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .btn-bounce:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
 
-    <!-- Intro Intro -->
-    <div id="intro-overlay">
-        <h1 id="intro-logo" class="text-4xl md:text-6xl font-black gold-text opacity-0">DHARSHINI MARKET</h1>
-        <p id="intro-sub" class="mt-4 text-slate-400 tracking-[0.5em] opacity-0">PREMIUM ACCESS ONLY</p>
+    <!-- Flying Girl Mascot (SVG) -->
+    <div id="mascot">
+        <svg viewBox="0 0 100 100" width="50" height="50">
+            <circle cx="50" cy="40" r="15" fill="#ff3366" />
+            <path d="M50 55 L30 85 L70 85 Z" fill="#ff3366" />
+            <path d="M30 40 Q10 20 30 10 M70 40 Q90 20 70 10" stroke="#ff3366" fill="none" stroke-width="3" />
+            <text x="50" y="45" font-size="10" text-anchor="middle" fill="white">✨</text>
+        </svg>
     </div>
 
-    <!-- Butterfly Background -->
-    <div id="butterfly-container"></div>
-
-    <!-- Navbar -->
-    <nav class="fixed top-0 w-full z-[100] px-6 py-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <div class="text-xl font-bold gold-text">DHARSHINI</div>
-        <div class="flex items-center space-x-6">
-            <i class="fas fa-search text-slate-300"></i>
-            <div class="bg-indigo-600 px-4 py-1.5 rounded-full text-sm font-bold animate-pulse">LIVE</div>
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dharshini" class="w-10 h-10 rounded-full border-2 border-yellow-500">
-        </div>
+    <!-- Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-md border-t border-slate-100 px-8 py-4 flex justify-between items-center safe-area-inset-bottom shadow-2xl">
+        <button onclick="switchTab('home')" class="relative nav-btn tab-active" id="btn-home"><i class="fas fa-house-user text-xl"></i></button>
+        <button onclick="switchTab('vault')" class="relative nav-btn text-slate-400" id="btn-vault"><i class="fas fa-crown text-xl"></i></button>
+        <button onclick="switchTab('moments')" class="relative nav-btn text-slate-400" id="btn-moments"><i class="fas fa-camera-retro text-xl"></i></button>
+        <button onclick="switchTab('profile')" class="relative nav-btn text-slate-400" id="btn-profile"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dharshini" class="w-6 h-6 rounded-full border border-slate-200"></button>
     </nav>
 
-    <!-- Header / Video Intro -->
-    <section class="video-container">
-        <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80">
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-lighting-in-a-dark-room-21051-large.mp4" type="video/mp4">
-        </video>
-        <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
-            <h2 class="text-5xl md:text-7xl font-extrabold mb-4">Experience <span class="gold-text">Exclusivity.</span></h2>
-            <p class="text-slate-300 max-w-xl text-lg">Resale items & private drops curated by Dharshini. Join the 1%.</p>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-3 gap-12">
+    <div class="max-w-md mx-auto min-h-screen">
         
-        <!-- Left: Shop & Locked Content -->
-        <div class="lg:col-span-2 space-y-12">
-            <div>
-                <h3 class="text-2xl font-bold mb-8 flex items-center">
-                    <i class="fas fa-crown text-yellow-500 mr-3"></i> Premium Drops
-                </h3>
-                <div class="grid sm:grid-cols-2 gap-6">
-                    <!-- Standard Item -->
-                    <div class="locked-card rounded-3xl p-4">
-                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=400" class="w-full h-48 object-cover rounded-2xl mb-4">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold">Retro Sneakers</span>
-                            <span class="text-yellow-500">₹4,500</span>
-                        </div>
-                    </div>
+        <!-- Header -->
+        <header class="p-6 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-md z-50">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center">
+                    <span class="cursive text-2xl text-rose-500">D</span>
+                </div>
+                <div>
+                    <h1 class="font-black text-slate-900 tracking-tight">DHARSHINI <span class="text-rose-500">ULTRA</span></h1>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Official Fan Portal</p>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <button class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><i class="fas fa-search text-sm"></i></button>
+                <button class="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-200"><i class="fas fa-heart text-sm"></i></button>
+            </div>
+        </header>
 
-                    <!-- LOCKED ITEM -->
-                    <div class="locked-card rounded-3xl p-4 relative cursor-pointer" onclick="openPaymentModal()">
-                        <div class="relative h-48 rounded-2xl overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover blur-xl">
-                            <div class="absolute inset-0 blur-overlay flex flex-col items-center justify-center text-center p-4">
-                                <i class="fas fa-lock text-3xl mb-2 text-yellow-500"></i>
-                                <p class="font-bold text-sm">PRIVATE GALLERY</p>
-                                <p class="text-[10px] text-slate-300 uppercase tracking-widest mt-1">Locked by Dharshini</p>
-                            </div>
-                        </div>
-                        <button class="w-full mt-4 bg-yellow-500 text-black font-black py-2 rounded-xl text-sm">UNLOCK FOR ₹150</button>
+        <!-- Main Content -->
+        <main class="pb-24">
+            
+            <!-- HOME TAB -->
+            <div id="tab-home" class="section-container active space-y-8 p-6">
+                <!-- Profile Stats -->
+                <div class="glass-card rounded-[2.5rem] p-8 text-center space-y-6">
+                    <div class="relative inline-block">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-rose-500 to-amber-400 rounded-full blur animate-pulse"></div>
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dharshini" class="relative w-24 h-24 rounded-full bg-white border-4 border-white shadow-xl">
                     </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900">Dharshini Official</h2>
+                        <p class="text-sm text-slate-400 font-medium">Digital Creator | Artist | Explorer</p>
+                    </div>
+                    <div class="flex justify-around items-center pt-2">
+                        <div class="topic-tag"><p class="text-lg font-black">13.2K</p><p class="text-[10px] text-slate-400 font-bold uppercase">Followers</p></div>
+                        <div class="w-[1px] h-6 bg-slate-100"></div>
+                        <div class="topic-tag"><p class="text-lg font-black text-rose-500">4.1K</p><p class="text-[10px] text-slate-400 font-bold uppercase">Subscribers</p></div>
+                    </div>
+                </div>
 
-                    <!-- Another Locked -->
-                    <div class="locked-card rounded-3xl p-4 relative cursor-pointer" onclick="openPaymentModal()">
-                        <div class="relative h-48 rounded-2xl overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1529139513477-3235a8adadad?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover blur-xl">
-                            <div class="absolute inset-0 blur-overlay flex flex-col items-center justify-center text-center p-4">
-                                <i class="fas fa-video text-3xl mb-2 text-yellow-500"></i>
-                                <p class="font-bold text-sm">BTS EXCLUSIVE VIDEO</p>
-                            </div>
-                        </div>
-                        <button class="w-full mt-4 bg-yellow-500 text-black font-black py-2 rounded-xl text-sm">UNLOCK FOR ₹150</button>
-                    </div>
+                <!-- Feed Content -->
+                <div class="space-y-6">
+                    <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center">
+                        <span class="w-8 h-[2px] bg-rose-500 mr-3"></span> Today's Exclusive
+                    </h3>
                     
-                    <div class="locked-card rounded-3xl p-4">
-                        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=400" class="w-full h-48 object-cover rounded-2xl mb-4">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold">Luxury Watch</span>
-                            <span class="text-yellow-500">₹12,000</span>
+                    <div class="glass-card rounded-[2.5rem] overflow-hidden">
+                        <div class="p-5 flex items-center space-x-3">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dharshini" class="w-8 h-8 rounded-full border border-slate-100">
+                            <div>
+                                <p class="text-xs font-black">Dharshini</p>
+                                <p class="text-[9px] text-slate-400">2 hours ago • Tamil Nadu</p>
+                            </div>
+                        </div>
+                        <video autoplay muted loop playsinline class="w-full h-80 object-cover">
+                            <source src="https://assets.mixkit.co/videos/preview/mixkit-young-woman-with-long-brown-hair-smiling-in-the-sun-41235-large.mp4" type="video/mp4">
+                        </video>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex space-x-4">
+                                    <button class="text-rose-500 flex items-center space-x-1"><i class="fas fa-heart"></i> <span class="text-xs font-black">1,248</span></button>
+                                    <button class="text-slate-400 flex items-center space-x-1"><i class="fas fa-comment"></i> <span class="text-xs font-black">42</span></button>
+                                </div>
+                                <i class="fas fa-bookmark text-slate-300"></i>
+                            </div>
+                            <p class="text-sm text-slate-600 leading-relaxed">Good morning everyone! Sending positive vibes from the sets today. Excited for what's coming next! 🌸✨</p>
+                            
+                            <!-- Realtime Tamil Comments -->
+                            <div id="comment-section" class="space-y-3 pt-4 border-t border-slate-50">
+                                <!-- Comments dynamic -->
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Right: Real-time interaction -->
-        <div class="space-y-8">
-            <div class="bg-[#111113] rounded-3xl p-6 border border-slate-800">
-                <h4 class="font-bold mb-4 flex items-center justify-between">
-                    <span>Live Activity</span>
-                    <span class="text-[10px] text-green-500 bg-green-500/10 px-2 py-0.5 rounded">ONLINE</span>
-                </h4>
+            <!-- MOMENTS TAB (Locked Grid) -->
+            <div id="tab-moments" class="hidden p-6 space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black">Fantastic <span class="text-rose-500">Moments</span></h2>
+                    <span class="bg-rose-100 text-rose-500 text-[10px] font-black px-3 py-1 rounded-full uppercase">Locked Collections</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4" id="moments-grid">
+                    <!-- Dynamic Locked Grid -->
+                </div>
+            </div>
+
+            <!-- VAULT (Premium Dashboard) -->
+            <div id="tab-vault" class="hidden p-6 space-y-8">
+                <div class="premium-border rounded-[2.5rem] p-8 text-center space-y-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-rose-500 to-amber-400 rounded-3xl mx-auto flex items-center justify-center text-white text-2xl rotate-12">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black">Join the Elite Club</h3>
+                        <p class="text-slate-500 text-sm">Become one of our 4,100+ exclusive members today!</p>
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4 flex justify-between items-center">
+                        <div class="text-left">
+                            <p class="text-[10px] font-black text-rose-500 uppercase">Current Price</p>
+                            <p class="text-xl font-black">₹999<span class="text-xs text-slate-400">/month</span></p>
+                        </div>
+                        <button class="bg-slate-900 text-white px-6 py-2 rounded-xl text-xs font-bold btn-bounce">SUBSCRIBE</button>
+                    </div>
+                    <ul class="text-left space-y-4 text-xs font-bold text-slate-600">
+                        <li class="flex items-center"><i class="fas fa-check-circle text-rose-500 mr-3"></i> Private DM access</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-rose-500 mr-3"></i> 20+ Exclusive Secret Videos</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-rose-500 mr-3"></i> Early Access to Photoshoots</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- PROFILE TAB -->
+            <div id="tab-profile" class="hidden p-6 space-y-6">
+                <div class="glass-card rounded-[2rem] p-6 space-y-6">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dharshini" class="w-16 h-16 rounded-2xl bg-slate-50">
+                        <div>
+                            <h4 class="font-black">Dharshini Ultra</h4>
+                            <p class="text-xs text-slate-400">Member since Jan 2024</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="bg-slate-900 text-white p-4 rounded-2xl text-xs font-bold">Edit Profile</button>
+                        <button class="bg-slate-50 text-slate-900 p-4 rounded-2xl text-xs font-bold">Settings</button>
+                    </div>
+                </div>
                 
-                <div id="comment-stream">
-                    <div class="stream-track" id="stream-track">
-                        <!-- Generated Comments -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-black text-slate-400 uppercase">Account Activity</h4>
+                    <div class="space-y-2">
+                        <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-slate-100">
+                            <div class="flex items-center"><i class="fas fa-wallet text-slate-400 mr-3"></i> <span class="text-sm font-bold">Wallet Balance</span></div>
+                            <span class="text-sm font-black text-rose-500">₹0.00</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-slate-100">
+                            <div class="flex items-center"><i class="fas fa-history text-slate-400 mr-3"></i> <span class="text-sm font-bold">Transactions</span></div>
+                            <i class="fas fa-chevron-right text-slate-300"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-yellow-600 to-yellow-900 p-6 rounded-3xl premium-glow">
-                <h4 class="font-black text-xl mb-2">JOIN THE VIP CLUB</h4>
-                <p class="text-sm opacity-90 mb-4">Get early access to all resells and 20+ hidden galleries.</p>
-                <button class="w-full bg-white text-black font-bold py-3 rounded-2xl">Subscribe ₹499/mo</button>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
-    <!-- Payment Modal -->
-    <div id="payment-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
-        <div class="relative bg-[#1a1a1c] border border-yellow-500/50 p-8 rounded-[40px] max-w-sm w-full text-center">
-            <div class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-lock-open text-3xl text-yellow-500"></i>
-            </div>
-            <h3 class="text-2xl font-bold mb-2">Unlock Item</h3>
-            <p class="text-slate-400 text-sm mb-8">Confirm payment of <b>₹150</b> to access this exclusive piece from Dharshini's Market.</p>
-            <div class="space-y-3">
-                <button onclick="simulateSuccess()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl">PAY WITH UPI</button>
-                <button onclick="closePaymentModal()" class="w-full py-4 text-slate-500 text-sm">Cancel</button>
+    <!-- Payment Overlay -->
+    <div id="payment-overlay" class="fixed inset-0 z-[1000] hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="closePayment()"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] p-10 transform translate-y-full transition-transform duration-500" id="payment-sheet">
+            <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-8"></div>
+            <div class="text-center space-y-6">
+                <div class="w-20 h-20 bg-rose-50 rounded-3xl flex items-center justify-center text-rose-500 text-3xl mx-auto shadow-inner">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900" id="pay-title">Unlock Collection</h3>
+                    <p class="text-slate-400 text-sm">One-time payment to unlock this fantastic moment.</p>
+                </div>
+                <div class="bg-rose-50 p-6 rounded-[2rem]">
+                    <p class="text-xs font-black text-rose-500 uppercase mb-1">Total Amount</p>
+                    <p class="text-4xl font-black text-slate-900">₹150.00</p>
+                </div>
+                <button class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl shadow-slate-200 btn-bounce">CONTINUE TO UPI</button>
+                <button onclick="closePayment()" class="text-slate-400 text-sm font-bold">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Notification Toasts -->
-    <div id="booking-toast" class="fixed bottom-10 left-6 z-[300] space-y-4 pointer-events-none"></div>
-
     <script>
-        // 1. Intro Animation
-        window.onload = () => {
-            const tl = gsap.timeline();
-            tl.to("#intro-logo", { opacity: 1, duration: 1.5, ease: "power4.out" })
-              .to("#intro-sub", { opacity: 1, duration: 1, y: -10 }, "-=0.5")
-              .to("#intro-overlay", { y: "-100%", duration: 1.2, ease: "expo.inOut", delay: 1 })
-              .from(".video-container", { scale: 1.2, duration: 2 }, "-=0.5");
+        gsap.registerPlugin(ScrollTrigger);
 
-            initButterflies();
-            initCommentStream();
-            startBookingNotifications();
-        };
-
-        // 2. Butterfly Particles
-        function initButterflies() {
-            const container = document.getElementById('butterfly-container');
-            for(let i=0; i<15; i++) {
-                const b = document.createElement('div');
-                b.className = 'butterfly';
-                container.appendChild(b);
-                animateButterfly(b);
-            }
-        }
-
-        function animateButterfly(el) {
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            
-            gsap.set(el, { x, y, scale: Math.random() * 0.5 + 0.5 });
-            
-            gsap.to(el, {
-                x: x + (Math.random() - 0.5) * 400,
-                y: y + (Math.random() - 0.5) * 400,
-                duration: Math.random() * 10 + 5,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
+        // 1. Mascot Controller
+        const mascot = document.getElementById('mascot');
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(mascot, {
+                x: e.clientX - 25,
+                y: e.clientY - 25,
+                duration: 0.8,
+                ease: "power2.out"
             });
-            
-            // Flap effect
-            gsap.to(el, {
-                scaleX: 0.2,
-                duration: 0.2,
-                repeat: -1,
-                yoyo: true
+        });
+
+        // Dynamic Flying to Topics
+        function updateMascotPosition() {
+            const targets = document.querySelectorAll('.topic-tag');
+            targets.forEach(target => {
+                ScrollTrigger.create({
+                    trigger: target,
+                    start: "top center",
+                    onEnter: () => {
+                        gsap.to(mascot, {
+                            left: target.getBoundingClientRect().left - 60,
+                            top: target.getBoundingClientRect().top,
+                            scale: 1.5,
+                            duration: 0.5
+                        });
+                    }
+                });
             });
         }
 
-        // 3. Comment Stream Logic
-        const mockUsers = [
-            { name: "Rahul_01", msg: "Just unlocked the gallery, totally worth it! 🔥" },
-            { name: "Sonia.V", msg: "Is the leather jacket still in stock?" },
-            { name: "Priya_Queen", msg: "Dharshini always has the best taste. 💅" },
-            { name: "Kevin99", msg: "Sent the 150, waiting for access!" },
-            { name: "Arjun_X", msg: "The quality of these resells is insane." },
-            { name: "Vikram", msg: "Dharshini Market is my daily addiction now." }
+        // 2. Tab Controller
+        function switchTab(tab) {
+            const tabs = ['home', 'vault', 'moments', 'profile'];
+            tabs.forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('btn-' + t).classList.remove('tab-active');
+                document.getElementById('btn-' + t).classList.add('text-slate-400');
+            });
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            document.getElementById('btn-' + tab).classList.add('tab-active');
+            document.getElementById('btn-' + tab).classList.remove('text-slate-400');
+            
+            gsap.from("#tab-" + tab, { opacity: 0, scale: 0.98, duration: 0.4 });
+            window.scrollTo(0,0);
+        }
+
+        // 3. Mock Tamil Data Generator
+        const comments = [
+            { user: "Arun_Kumar", text: "Mass-ah iruku Dharshini! 🔥" },
+            { user: "Kavitha_V", text: "Lovely morning vibes sissy! ❤️" },
+            { user: "Vijay_Official", text: "Super excited for the photoshoot!" },
+            { user: "Deepa_99", text: "Unlock panniten, full collection semma! 😍" }
         ];
 
-        function initCommentStream() {
-            const track = document.getElementById('stream-track');
-            // Duplicate content for seamless loop
-            const content = [...mockUsers, ...mockUsers, ...mockUsers].map(user => `
-                <div class="flex items-start space-x-3 bg-white/5 p-3 rounded-2xl border border-white/5">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}" class="w-8 h-8 rounded-full">
-                    <div>
-                        <p class="text-[11px] font-bold gold-text">${user.name}</p>
-                        <p class="text-xs text-slate-300">${user.msg}</p>
-                    </div>
-                </div>
-            `).join('');
-            track.innerHTML = content + content;
+        function initComments() {
+            const container = document.getElementById('comment-section');
+            comments.forEach(c => {
+                const div = document.createElement('div');
+                div.className = "flex items-start space-x-3 text-xs";
+                div.innerHTML = `
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${c.user}" class="w-6 h-6 rounded-full">
+                    <div><span class="font-black mr-2">${c.user}</span><span class="text-slate-500">${c.text}</span></div>
+                `;
+                container.appendChild(div);
+            });
         }
 
-        // 4. Booking Notifications
-        function startBookingNotifications() {
-            const names = ["Anita", "Raj", "Sameer", "Monica", "Deepak", "Sneha"];
-            const products = ["Vintage Watch", "Gold Chain", "Unlocked Gallery", "Silk Scarf"];
+        // 4. Locked Moments Grid
+        function initMoments() {
+            const grid = document.getElementById('moments-grid');
+            const items = [
+                { title: "Sunset Shoot", id: 1 },
+                { title: "Traditional Look", id: 2 },
+                { title: "Secret BTS 01", id: 3 },
+                { title: "Casual Diaries", id: 4 },
+                { title: "Red Carpet", id: 5 },
+                { title: "Beach Vibes", id: 6 }
+            ];
 
-            setInterval(() => {
-                const name = names[Math.floor(Math.random()*names.length)];
-                const product = products[Math.floor(Math.random()*products.length)];
-                
-                const toast = document.createElement('div');
-                toast.className = 'bg-white text-black p-4 rounded-2xl shadow-2xl flex items-center space-x-3 transform transition-all duration-500 translate-x-[-150%]';
-                toast.innerHTML = `
-                    <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-shopping-bag text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">New Booking</p>
-                        <p class="text-xs font-bold"><b>${name}</b> just copped <b>${product}</b></p>
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "relative aspect-square rounded-[2rem] overflow-hidden group cursor-pointer border border-slate-50";
+                div.onclick = () => openPayment(item.title);
+                div.innerHTML = `
+                    <img src="https://images.unsplash.com/photo-15${Math.floor(Math.random()*900000)}?auto=format&fit=crop&q=80&w=300" class="w-full h-full object-cover blur-2xl grayscale">
+                    <div class="absolute inset-0 locked-overlay flex flex-col items-center justify-center p-4 text-center">
+                        <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-lg mb-2">
+                            <i class="fas fa-lock text-rose-500 text-sm"></i>
+                        </div>
+                        <p class="text-[9px] font-black text-slate-800 uppercase tracking-tighter">${item.title}</p>
+                        <p class="text-[8px] font-bold text-rose-500 mt-1">₹150 UNLOCK</p>
                     </div>
                 `;
-                
-                document.getElementById('booking-toast').appendChild(toast);
-                
-                // Animation
-                setTimeout(() => toast.style.transform = 'translateX(0)', 100);
-                setTimeout(() => {
-                    toast.style.transform = 'translateX(-150%)';
-                    setTimeout(() => toast.remove(), 1000);
-                }, 4000);
-
-            }, 7000);
+                grid.appendChild(div);
+            });
         }
 
-        // 5. Payment Simulation
-        function openPaymentModal() {
-            document.getElementById('payment-modal').classList.remove('hidden');
-            gsap.from("#payment-modal > div:last-child", { scale: 0.8, opacity: 0, duration: 0.4 });
-        }
-
-        function closePaymentModal() {
-            document.getElementById('payment-modal').classList.add('hidden');
-        }
-
-        function simulateSuccess() {
-            const btn = document.querySelector('#payment-modal button');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        // 5. Payment Logic
+        function openPayment(title) {
+            document.getElementById('pay-title').innerText = "Unlock " + title;
+            document.getElementById('payment-overlay').classList.remove('hidden');
             setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> UNLOCKED!';
-                btn.classList.replace('bg-yellow-500', 'bg-green-500');
-                setTimeout(() => {
-                    closePaymentModal();
-                    // Reset button for next time
-                    btn.innerHTML = 'PAY WITH UPI';
-                    btn.classList.replace('bg-green-500', 'bg-yellow-500');
-                    alert("Exclusive content unlocked! Access added to your profile.");
-                }, 1500);
-            }, 2000);
+                document.getElementById('payment-sheet').style.transform = "translateY(0)";
+            }, 50);
         }
+
+        function closePayment() {
+            document.getElementById('payment-sheet').style.transform = "translateY(100%)";
+            setTimeout(() => {
+                document.getElementById('payment-overlay').classList.add('hidden');
+            }, 400);
+        }
+
+        // Initializers
+        window.onload = () => {
+            initComments();
+            initMoments();
+            updateMascotPosition();
+        };
+
+        // Extra: Periodic "User Joined" notification
+        setInterval(() => {
+            const names = ["Anbu", "Selvam", "Siva", "Monica", "Raja"];
+            const toast = document.createElement('div');
+            toast.className = "fixed top-24 right-4 z-[2000] glass-card px-4 py-2 rounded-2xl text-[10px] font-black flex items-center border-l-4 border-rose-500 translate-x-[150%] transition-transform duration-500";
+            toast.innerHTML = `<span class="text-rose-500 mr-2">⭐</span> ${names[Math.floor(Math.random()*names.length)]} joined the Fan Club!`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.style.transform = "translateX(0)", 100);
+            setTimeout(() => {
+                toast.style.transform = "translateX(150%)";
+                setTimeout(() => toast.remove(), 1000);
+            }, 4000);
+        }, 10000);
+
     </script>
 </body>
 </html>
