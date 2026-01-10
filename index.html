@@ -3,406 +3,641 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dharshini AI Chat</title>
+    <title>Dharshini - Chat & Connect</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-        
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #0f172a;
+        }
         body {
-            font-family: 'Plus Jakarta Jakarta Sans', sans-serif;
-            background-color: #fafafa;
-        }
-        .chat-bubble-me {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            border-radius: 18px 18px 4px 18px;
-        }
-        .chat-bubble-them {
-            background: #f3f4f6;
-            border-radius: 18px 18px 18px 4px;
-        }
-        .nav-active {
-            color: #4f46e5;
-        }
-        .glass-header {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
-        
-        #app-container {
-            max-width: 500px;
-            margin: 0 auto;
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: white;
-            box-shadow: 0 0 40px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; flex-direction: column; height: 100%; }
+        .verified-badge { color: #3b82f6; margin-left: 4px; }
+        .message-bubble { max-width: 80%; border-radius: 18px; padding: 10px 16px; margin-bottom: 8px; position: relative; }
+        .sent { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .received { background: #334155; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .bottom-nav { border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        #notification-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 100; display: none;
         }
     </style>
 </head>
 <body>
 
-<div id="app-container">
-    <!-- Screen: Loading -->
-    <div id="screen-loading" class="flex flex-col items-center justify-center h-full space-y-4">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600"></div>
-        <p class="text-slate-400 font-medium tracking-widest text-sm uppercase">Initializing Dharshini</p>
+    <!-- Notification Toast -->
+    <div id="notification-toast" class="glass px-6 py-3 rounded-full text-sm font-medium shadow-2xl border-indigo-500 border">
+        <span id="toast-msg">New Message!</span>
     </div>
 
-    <!-- Main App Content (Hidden by default) -->
-    <div id="main-content" class="hidden flex flex-col h-full">
-        <!-- Header -->
-        <header class="glass-header sticky top-0 z-20 px-4 py-4 border-b border-slate-100 flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-tighter text-indigo-600" id="header-title">Dharshini</h1>
-            <div class="flex items-center gap-5 text-slate-600">
-                <i class="fa-regular fa-heart text-xl"></i>
-                <div class="relative">
-                    <i class="fa-regular fa-paper-plane text-xl"></i>
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">2</span>
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950">
+        <div class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl text-center">
+            <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Dharshini</h1>
+            <p class="text-slate-400 mb-8">Ulla varuvatharku login seiyavum</p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Username</label>
+                    <input type="text" id="auth-username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Username ..">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" id="auth-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Password ..">
+                </div>
+                <button onclick="handleAuth()" id="auth-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors py-3 rounded-xl font-bold mt-4 shadow-lg">Login / Sign Up</button>
+            </div>
+            <p class="mt-6 text-xs text-slate-500">Admin username: dharshini</p>
+        </div>
+    </div>
+
+    <!-- Main App UI (Hidden initially) -->
+    <div id="app-container" class="hidden flex flex-col h-full max-w-2xl mx-auto border-x border-slate-800">
+        
+        <!-- Top Bar -->
+        <header class="p-4 glass flex justify-between items-center z-10">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-xl tracking-tight text-indigo-400">Dharshini</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="admin-dash-btn" onclick="showTab('admin')" class="hidden bg-red-500/20 text-red-400 text-xs px-3 py-1 rounded-full border border-red-500/50">Admin Dash</button>
+                <button onclick="logout()" class="text-slate-400 hover:text-white"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </header>
 
-        <!-- Dynamic Content Area -->
-        <main id="view-container" class="flex-1 overflow-y-auto bg-white">
-            <!-- Content will be injected here -->
+        <!-- Search Bar (Global only) -->
+        <div id="search-section" class="px-4 py-2 glass border-t border-slate-800 hidden">
+            <div class="relative">
+                <i class="fas fa-search absolute left-3 top-3 text-slate-500"></i>
+                <input type="text" id="user-search" oninput="searchUsers()" placeholder="Username theduga..." class="w-full bg-slate-900 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <main class="flex-1 overflow-y-auto relative">
+            
+            <!-- Inbox Tab -->
+            <div id="tab-inbox" class="tab-content active p-4 space-y-4">
+                <h2 class="text-lg font-bold mb-2">Ungal Inbox</h2>
+                <div id="chat-list" class="space-y-3">
+                    <!-- Chats will appear here -->
+                    <div class="text-center text-slate-500 mt-10">Conversations ethuvum illai.</div>
+                </div>
+            </div>
+
+            <!-- Global Chat Tab -->
+            <div id="tab-global" class="tab-content p-4 flex flex-col h-full">
+                <div id="global-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 flex flex-col">
+                    <!-- Messages here -->
+                </div>
+                <div class="flex items-center gap-2 p-2 glass rounded-2xl">
+                    <button onclick="triggerFile('global')" class="text-slate-400 p-2"><i class="fas fa-paperclip"></i></button>
+                    <input type="text" id="global-input" placeholder="Yellarkum message pannu..." class="flex-1 bg-transparent border-none focus:outline-none text-sm px-2">
+                    <button onclick="sendGlobalMessage()" class="bg-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center"><i class="fas fa-paper-plane text-sm"></i></button>
+                </div>
+            </div>
+
+            <!-- Profile / Explore Tab -->
+            <div id="tab-profile" class="tab-content p-4 overflow-y-auto">
+                <div id="profile-view" class="space-y-6">
+                    <!-- User own profile or searched profiles appear here -->
+                </div>
+                <div id="user-list-results" class="mt-8 space-y-4">
+                    <!-- Search results appear here -->
+                </div>
+            </div>
+
+            <!-- Private Chat Window (Modal Overlay) -->
+            <div id="private-chat" class="hidden absolute inset-0 bg-slate-950 z-20 flex flex-col">
+                <div class="p-4 glass flex items-center gap-4">
+                    <button onclick="closePrivateChat()" class="text-slate-400"><i class="fas fa-arrow-left"></i></button>
+                    <div class="flex items-center gap-3">
+                        <div id="pc-avatar" class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold">U</div>
+                        <div>
+                            <div class="flex items-center">
+                                <span id="pc-name" class="font-bold">Username</span>
+                                <span id="pc-verified" class="hidden verified-badge"><i class="fas fa-check-circle text-[10px]"></i></span>
+                            </div>
+                            <span id="pc-status" class="text-[10px] text-slate-500">Offline</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="pc-messages" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-3"></div>
+                <div class="p-4 bg-slate-900">
+                    <div class="flex items-center gap-2 p-2 bg-slate-800 rounded-2xl">
+                        <button onclick="triggerFile('private')" class="text-slate-400 p-2"><i class="fas fa-paperclip"></i></button>
+                        <input type="text" id="pc-input" placeholder="Message seiya..." class="flex-1 bg-transparent border-none focus:outline-none text-sm px-2">
+                        <button onclick="sendPrivateMessage()" class="bg-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center"><i class="fas fa-paper-plane text-sm"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="tab-admin" class="tab-content p-4">
+                <h2 class="text-2xl font-bold mb-4">Admin Dashboard</h2>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="glass p-4 rounded-2xl">
+                        <div class="text-xs text-slate-400">Total Users</div>
+                        <div id="count-users" class="text-2xl font-bold">0</div>
+                    </div>
+                    <div class="glass p-4 rounded-2xl">
+                        <div class="text-xs text-slate-400">Total Chats</div>
+                        <div id="count-chats" class="text-2xl font-bold">0</div>
+                    </div>
+                </div>
+                <h3 class="font-bold mb-2">User Database (Edit)</h3>
+                <div id="admin-user-list" class="space-y-3">
+                    <!-- Users with Edit buttons -->
+                </div>
+            </div>
+
         </main>
 
+        <!-- Hidden File Input -->
+        <input type="file" id="file-input" class="hidden" onchange="handleFile(event)">
+
         <!-- Bottom Navigation -->
-        <nav id="bottom-nav" class="flex justify-around items-center py-3 border-t border-slate-100 bg-white">
-            <button onclick="changeTab('inbox')" class="nav-item text-slate-400 p-2" id="nav-inbox"><i class="fa-solid fa-house text-2xl"></i></button>
-            <button onclick="changeTab('users')" class="nav-item text-slate-400 p-2" id="nav-users"><i class="fa-solid fa-users text-2xl"></i></button>
-            <button onclick="changeTab('ai')" class="nav-item text-slate-400 p-2" id="nav-ai"><i class="fa-solid fa-wand-magic-sparkles text-2xl"></i></button>
-            <button onclick="changeTab('profile')" class="nav-item text-slate-400 p-2" id="nav-profile"><i class="fa-solid fa-circle-user text-2xl"></i></button>
+        <nav class="bottom-nav h-16 glass grid grid-cols-3">
+            <button onclick="showTab('inbox')" class="nav-item flex flex-col items-center justify-center text-slate-400 transition-colors" data-tab="inbox">
+                <i class="fas fa-comment-dots text-xl"></i>
+                <span class="text-[10px] mt-1">Inbox</span>
+            </button>
+            <button onclick="showTab('global')" class="nav-item flex flex-col items-center justify-center text-slate-400 transition-colors" data-tab="global">
+                <i class="fas fa-globe-americas text-xl"></i>
+                <span class="text-[10px] mt-1">Global</span>
+            </button>
+            <button onclick="showTab('profile')" class="nav-item flex flex-col items-center justify-center text-slate-400 transition-colors" data-tab="profile">
+                <i class="fas fa-user-circle text-xl"></i>
+                <span class="text-[10px] mt-1">Profile</span>
+            </button>
         </nav>
     </div>
-</div>
 
-<!-- Firebase SDKs -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, addDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // --- Configuration ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyBcJNL7NSXLlpvtvvU_EvtA2xh-v7xU33w",
-        authDomain: "josen-240c7.firebaseapp.com",
-        projectId: "josen-240c7",
-        storageBucket: "josen-240c7.firebasestorage.app",
-        messagingSenderId: "1007530396134",
-        appId: "1:1007530396134:web:bc2bda6a0b147c2944ae27"
-    };
-    
-    const GEMINI_API_KEY = "AIzaSyCjv8im0ffNsK6bhf7aD_PP6EimAPyShmg";
-    const appId = "dharshini-v1";
+        const firebaseConfig = {
+            apiKey: "AIzaSyBcJNL7NSXLlpvtvvU_EvtA2xh-v7xU33w",
+            authDomain: "josen-240c7.firebaseapp.com",
+            databaseURL: "https://josen-240c7-default-rtdb.firebaseio.com",
+            projectId: "josen-240c7",
+            storageBucket: "josen-240c7.firebasestorage.app",
+            messagingSenderId: "1007530396134",
+            appId: "1:1007530396134:web:bc2bda6a0b147c2944ae27"
+        };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dharshini-chat';
 
-    let currentUser = null;
-    let currentTab = 'inbox';
-    let users = [];
+        // State
+        let currentUser = null;
+        let userData = null;
+        let users = {};
+        let activePrivateChatId = null;
+        let activeChatTargetId = null;
+        let fileMode = 'global'; // 'global' or 'private'
 
-    // --- Authentication & Initialization ---
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
+        // Constants
+        const ADMIN_USER = "dharshini";
+        const ADMIN_PASS = "dharshini.com";
+
+        // Auth Logic
+        window.handleAuth = async () => {
+            const username = document.getElementById('auth-username').value.trim().toLowerCase();
+            const password = document.getElementById('auth-password').value;
+
+            if (!username || !password) return alert("Username matrum Password nuliya vendum");
+
+            // Check if user exists or sign up
+            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', username);
             const userSnap = await getDoc(userRef);
-            
-            if (!userSnap.exists()) {
-                currentUser = {
-                    uid: user.uid,
-                    displayName: "User_" + Math.random().toString(36).substr(2, 5),
-                    photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
-                    status: 'Online'
-                };
-                await setDoc(userRef, currentUser);
+
+            if (userSnap.exists()) {
+                if (userSnap.data().password !== password) {
+                    return alert("Thavarana password!");
+                }
             } else {
-                currentUser = userSnap.data();
+                // Sign up
+                await setDoc(userRef, {
+                    username: username,
+                    password: password,
+                    displayName: username,
+                    verified: (username === ADMIN_USER),
+                    followers: [],
+                    following: [],
+                    lastSeen: serverTimestamp(),
+                    isAdmin: (username === ADMIN_USER)
+                });
             }
+
+            // Auth with Firebase
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            localStorage.setItem('dharshini_user', username);
+            initApp(username);
+        };
+
+        const initApp = async (username) => {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+
+            // Set current user state
+            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', username);
             
-            document.getElementById('screen-loading').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-            initUserSync();
-            renderTab();
-        } else {
-            signInAnonymously(auth);
-        }
-    });
-
-    // --- Tab Management ---
-    window.changeTab = (tab) => {
-        currentTab = tab;
-        renderTab();
-    };
-
-    const renderTab = () => {
-        const container = document.getElementById('view-container');
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => item.classList.remove('nav-active'));
-        document.getElementById(`nav-${currentTab}`)?.classList.add('nav-active');
-
-        switch(currentTab) {
-            case 'inbox': renderInbox(container); break;
-            case 'users': renderUsers(container); break;
-            case 'ai': renderAIChat(container); break;
-            case 'profile': renderProfile(container); break;
-        }
-    };
-
-    // --- View: Inbox ---
-    function renderInbox(container) {
-        container.innerHTML = `
-            <div class="p-4 space-y-6">
-                <div class="flex overflow-x-auto gap-4 pb-2 no-scrollbar">
-                    <div class="flex flex-col items-center flex-shrink-0">
-                        <div class="w-16 h-16 rounded-full border-2 border-indigo-500 p-0.5 mb-1">
-                            <img src="${currentUser.photoURL}" class="w-full h-full rounded-full object-cover">
-                        </div>
-                        <span class="text-[10px] text-slate-500">Your Story</span>
-                    </div>
-                    <!-- Stories could be added here -->
-                </div>
-                <div class="space-y-4">
-                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Messages</h2>
-                    <div class="flex items-center gap-4 p-2 cursor-pointer" onclick="changeTab('ai')">
-                        <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-600 text-xl"></i>
-                        </div>
-                        <div class="flex-1 border-b border-slate-50 pb-4">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold">Dharshini AI</span>
-                                <span class="text-xs text-slate-400">Now</span>
-                            </div>
-                            <p class="text-sm text-slate-500 truncate italic">Ready to chat with you!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // --- View: Users ---
-    function initUserSync() {
-        const q = collection(db, 'artifacts', appId, 'public', 'data', 'users');
-        onSnapshot(q, (snapshot) => {
-            users = [];
-            snapshot.forEach(doc => {
-                if(doc.id !== currentUser.uid) users.push(doc.data());
+            // Real-time user data
+            onSnapshot(userRef, (snap) => {
+                userData = snap.data();
+                if (userData.isAdmin) {
+                    document.getElementById('admin-dash-btn').classList.remove('hidden');
+                }
+                updateProfileUI();
             });
-            if (currentTab === 'users') renderUsers(document.getElementById('view-container'));
-        });
-    }
 
-    function renderUsers(container) {
-        container.innerHTML = `
-            <div class="p-4">
-                <h2 class="text-xl font-bold mb-6">Discover People</h2>
-                <div class="space-y-4">
-                    ${users.map(u => `
-                        <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl">
-                            <div class="flex items-center gap-3">
-                                <img src="${u.photoURL}" class="w-12 h-12 rounded-full">
-                                <div>
-                                    <p class="font-bold">${u.displayName}</p>
-                                    <p class="text-xs text-green-500 font-medium">Online</p>
-                                </div>
-                            </div>
-                            <button onclick="startPrivateChat('${u.uid}', '${u.displayName}', '${u.photoURL}')" 
-                                    class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Message</button>
-                        </div>
-                    `).join('')}
-                    ${users.length === 0 ? '<p class="text-center text-slate-400 py-20">Looking for users...</p>' : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    // --- View: AI Chat ---
-    let aiMessages = [{ role: 'ai', text: 'Hello! I am Dharshini AI. Your personal space for thoughts and questions. How can I help today?' }];
-    
-    window.handleAISend = async (e) => {
-        e.preventDefault();
-        const input = document.getElementById('ai-input');
-        const text = input.value.trim();
-        if (!text) return;
-        
-        input.value = '';
-        aiMessages.push({ role: 'user', text });
-        renderAIChat(document.getElementById('view-container'));
-
-        const typing = document.getElementById('ai-typing');
-        typing.classList.remove('hidden');
-
-        try {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: text }] }],
-                    systemInstruction: { parts: [{ text: "You are Dharshini AI. Be friendly, empathetic, and use some emojis. Keep responses brief." }] }
-                })
+            // Sync all users
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'users'), (snap) => {
+                const userList = {};
+                snap.forEach(doc => { userList[doc.id] = doc.data(); });
+                users = userList;
+                renderInbox();
+                renderAdminUsers();
+                updateCounts();
             });
-            const data = await resp.json();
-            const aiText = data.candidates[0].content.parts[0].text;
-            aiMessages.push({ role: 'ai', text: aiText });
-        } catch (err) {
-            aiMessages.push({ role: 'ai', text: 'Sorry, I hit a snag. Let me try again later!' });
-        }
-        
-        typing.classList.add('hidden');
-        renderAIChat(document.getElementById('view-container'));
-    };
 
-    function renderAIChat(container) {
-        container.innerHTML = `
-            <div class="flex flex-col h-full bg-slate-50">
-                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="ai-messages-box">
-                    ${aiMessages.map(m => `
-                        <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}">
-                            <div class="max-w-[80%] p-4 ${m.role === 'user' ? 'chat-bubble-me text-white' : 'chat-bubble-them text-slate-800'} text-sm shadow-sm">
-                                ${m.text}
+            // Global Chat Listener
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'global_messages'), (snap) => {
+                renderGlobalMessages(snap.docs.map(d => d.data()).sort((a, b) => a.timestamp - b.timestamp));
+            });
+
+            // Online pulse
+            setInterval(() => {
+                updateDoc(userRef, { lastSeen: Date.now() });
+            }, 30000);
+        };
+
+        // Navigation
+        window.showTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('text-indigo-400'));
+            
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            const navBtn = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
+            if (navBtn) navBtn.classList.add('text-indigo-400');
+
+            if (tabName === 'global' || tabName === 'profile') {
+                document.getElementById('search-section').classList.remove('hidden');
+            } else {
+                document.getElementById('search-section').classList.add('hidden');
+            }
+
+            if (tabName === 'profile') renderMyProfile();
+        };
+
+        // Render Functions
+        const renderGlobalMessages = (msgs) => {
+            const container = document.getElementById('global-messages');
+            const atBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+            
+            container.innerHTML = msgs.map(m => {
+                const isMe = m.sender === userData.username;
+                const senderData = users[m.sender] || { displayName: m.sender };
+                return `
+                    <div class="message-bubble ${isMe ? 'sent' : 'received'}">
+                        ${!isMe ? `<div class="text-[10px] font-bold text-indigo-300 mb-1">${senderData.displayName} ${senderData.verified ? '<i class="fas fa-check-circle"></i>' : ''}</div>` : ''}
+                        <div class="text-sm">${m.text || ''}</div>
+                        ${m.fileUrl ? `<div class="mt-2"><a href="${m.fileUrl}" target="_blank" class="text-xs underline flex items-center gap-1"><i class="fas fa-file"></i> File</a></div>` : ''}
+                        <div class="text-[8px] opacity-50 text-right mt-1">${new Date(m.timestamp?.toMillis ? m.timestamp.toMillis() : Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                `;
+            }).join('');
+
+            if (atBottom) container.scrollTop = container.scrollHeight;
+        };
+
+        const renderInbox = () => {
+            const container = document.getElementById('chat-list');
+            const inboxUsers = Object.keys(users).filter(id => id !== userData.username);
+            
+            // Logic: Always show Admin, and show anyone currently followed or who has messaged
+            // For simplicity, we show followed users and Admin
+            const filtered = inboxUsers.filter(uid => {
+                const u = users[uid];
+                return u.isAdmin || userData.following.includes(uid);
+            });
+
+            container.innerHTML = filtered.map(uid => {
+                const u = users[uid];
+                const isOnline = (Date.now() - (u.lastSeen || 0)) < 60000;
+                return `
+                    <div onclick="openPrivateChat('${uid}')" class="flex items-center gap-4 p-3 glass rounded-2xl cursor-pointer hover:bg-white/10 transition-colors">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center font-bold text-lg">${u.displayName[0].toUpperCase()}</div>
+                            ${isOnline ? '<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full"></div>' : ''}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center font-bold">
+                                ${u.displayName}
+                                ${u.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                             </div>
+                            <div class="text-xs text-slate-500">${isOnline ? 'Online' : 'Offline'}</div>
                         </div>
-                    `).join('')}
-                    <div id="ai-typing" class="hidden flex justify-start">
-                        <div class="chat-bubble-them p-3 flex gap-1">
-                            <div class="w-1 h-1 bg-slate-400 rounded-full animate-bounce"></div>
-                            <div class="w-1 h-1 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            <div class="w-1 h-1 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                        <i class="fas fa-chevron-right text-slate-600"></i>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        const renderMyProfile = () => {
+            viewUserProfile(userData.username);
+        };
+
+        window.viewUserProfile = (uid) => {
+            const u = users[uid];
+            if (!u) return;
+            const container = document.getElementById('profile-view');
+            const isMe = uid === userData.username;
+            const isFollowing = userData.following.includes(uid);
+
+            container.innerHTML = `
+                <div class="text-center">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-indigo-600 flex items-center justify-center text-4xl font-bold mb-4 shadow-xl">
+                        ${u.displayName[0].toUpperCase()}
+                    </div>
+                    <h2 class="text-2xl font-bold flex justify-center items-center gap-2">
+                        ${u.displayName}
+                        ${u.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                    </h2>
+                    <p class="text-slate-500 text-sm">@${u.username}</p>
+                    
+                    <div class="flex justify-center gap-8 my-6">
+                        <div class="text-center">
+                            <div class="font-bold">${u.followers.length}</div>
+                            <div class="text-xs text-slate-500">Followers</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold">${u.following.length}</div>
+                            <div class="text-xs text-slate-500">Following</div>
                         </div>
                     </div>
-                </div>
-                <form onsubmit="handleAISend(event)" class="p-4 bg-white border-t flex gap-2">
-                    <input id="ai-input" class="flex-1 bg-slate-100 rounded-2xl px-4 py-3 outline-none" placeholder="Chat with Dharshini AI...">
-                    <button class="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </form>
-            </div>
-        `;
-        const box = document.getElementById('ai-messages-box');
-        box.scrollTop = box.scrollHeight;
-    }
 
-    // --- View: Profile ---
-    function renderProfile(container) {
-        container.innerHTML = `
-            <div class="p-8 flex flex-col items-center">
-                <div class="w-28 h-28 rounded-full border-4 border-indigo-50 p-1 mb-4">
-                    <img src="${currentUser.photoURL}" class="w-full h-full rounded-full">
-                </div>
-                <h2 class="text-2xl font-bold mb-1">${currentUser.displayName}</h2>
-                <p class="text-slate-400 text-sm mb-6">Software Explorer</p>
-                
-                <div class="grid grid-cols-3 gap-8 w-full mb-8">
-                    <div class="text-center">
-                        <p class="font-bold text-lg">0</p>
-                        <p class="text-xs text-slate-400 uppercase">Posts</p>
-                    </div>
-                    <div class="text-center border-x border-slate-100">
-                        <p class="font-bold text-lg">128</p>
-                        <p class="text-xs text-slate-400 uppercase">Friends</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="font-bold text-lg">42</p>
-                        <p class="text-xs text-slate-400 uppercase">Stars</p>
+                    <div class="flex gap-2">
+                        ${!isMe ? `
+                            <button onclick="toggleFollow('${uid}')" class="flex-1 ${isFollowing ? 'bg-slate-700' : 'bg-indigo-600'} py-3 rounded-xl font-bold transition-all">
+                                ${isFollowing ? 'Unfollow' : 'Follow'}
+                            </button>
+                            <button onclick="openPrivateChat('${uid}')" class="flex-1 bg-white/10 hover:bg-white/20 py-3 rounded-xl font-bold">
+                                Message
+                            </button>
+                        ` : `
+                            <button onclick="editProfilePrompt()" class="w-full bg-white/10 py-3 rounded-xl font-bold">Edit Profile</button>
+                        `}
                     </div>
                 </div>
+            `;
+        };
 
-                <div class="w-full space-y-3">
-                    <button class="w-full py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100">Edit Profile</button>
-                    <button class="w-full py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-700">Account Settings</button>
-                </div>
-            </div>
-        `;
-    }
+        // Actions
+        window.sendGlobalMessage = async () => {
+            const input = document.getElementById('global-input');
+            const text = input.value.trim();
+            if (!text) return;
 
-    // --- Feature: Private Messaging ---
-    let currentChatId = null;
-    window.startPrivateChat = (targetId, name, photo) => {
-        const container = document.getElementById('view-container');
-        currentChatId = [currentUser.uid, targetId].sort().join('_');
-        
-        container.innerHTML = `
-            <div class="flex flex-col h-full">
-                <div class="p-3 border-b flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <button onclick="changeTab('users')" class="p-2"><i class="fa-solid fa-chevron-left"></i></button>
-                        <img src="${photo}" class="w-10 h-10 rounded-full">
-                        <span class="font-bold">${name}</span>
-                    </div>
-                    <div class="flex gap-4 pr-2">
-                        <button onclick="showModal('Calling ${name}...')" class="text-slate-600"><i class="fa-solid fa-phone"></i></button>
-                        <button onclick="showModal('Starting Video with ${name}...')" class="text-slate-600"><i class="fa-solid fa-video"></i></button>
-                    </div>
-                </div>
-                <div id="msg-history" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50"></div>
-                <form id="chat-form" class="p-4 bg-white border-t flex gap-2">
-                    <input id="chat-input" class="flex-1 bg-slate-100 rounded-2xl px-4 py-3 outline-none" placeholder="Message...">
-                    <button class="bg-indigo-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </form>
-            </div>
-        `;
-
-        const form = document.getElementById('chat-form');
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('chat-input');
-            const val = input.value.trim();
-            if(!val) return;
             input.value = '';
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chats', currentChatId, 'messages'), {
-                text: val,
-                sender: currentUser.uid,
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'global_messages'), {
+                sender: userData.username,
+                text: text,
                 timestamp: serverTimestamp()
             });
         };
 
-        const q = collection(db, 'artifacts', appId, 'public', 'data', 'chats', currentChatId, 'messages');
-        onSnapshot(query(q, orderBy('timestamp')), (snap) => {
-            const hist = document.getElementById('msg-history');
-            if(!hist) return;
-            hist.innerHTML = '';
-            snap.forEach(doc => {
-                const m = doc.data();
-                const isMe = m.sender === currentUser.uid;
-                hist.innerHTML += `
-                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                        <div class="${isMe ? 'chat-bubble-me text-white' : 'chat-bubble-them text-slate-800'} p-3 text-sm shadow-sm max-w-[80%]">
-                            ${m.text}
+        window.openPrivateChat = (uid) => {
+            const u = users[uid];
+            activeChatTargetId = uid;
+            document.getElementById('pc-name').innerText = u.displayName;
+            document.getElementById('pc-avatar').innerText = u.displayName[0].toUpperCase();
+            document.getElementById('pc-verified').classList.toggle('hidden', !u.verified);
+            
+            const pcWindow = document.getElementById('private-chat');
+            pcWindow.classList.remove('hidden');
+
+            // Find or create chat room ID
+            const ids = [userData.username, uid].sort();
+            const chatId = ids.join('_');
+            activePrivateChatId = chatId;
+
+            // Load messages
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', `chat_${chatId}`), (snap) => {
+                const msgs = snap.docs.map(d => d.data()).sort((a,b) => a.timestamp - b.timestamp);
+                renderPrivateMessages(msgs);
+            });
+        };
+
+        const renderPrivateMessages = (msgs) => {
+            const container = document.getElementById('pc-messages');
+            container.innerHTML = msgs.map(m => {
+                const isMe = m.sender === userData.username;
+                return `
+                    <div class="message-bubble ${isMe ? 'sent' : 'received'}">
+                        <div class="text-sm">${m.text || ''}</div>
+                        ${m.fileUrl ? `<div class="mt-2"><a href="${m.fileUrl}" target="_blank" class="text-xs underline flex items-center gap-1"><i class="fas fa-file"></i> Open File</a></div>` : ''}
+                        <div class="text-[8px] opacity-50 text-right mt-1">${new Date(m.timestamp?.toMillis ? m.timestamp.toMillis() : Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                `;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        };
+
+        window.sendPrivateMessage = async () => {
+            const input = document.getElementById('pc-input');
+            const text = input.value.trim();
+            if (!text || !activePrivateChatId) return;
+
+            input.value = '';
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `chat_${activePrivateChatId}`), {
+                sender: userData.username,
+                text: text,
+                timestamp: serverTimestamp()
+            });
+        };
+
+        window.closePrivateChat = () => {
+            document.getElementById('private-chat').classList.add('hidden');
+        };
+
+        window.toggleFollow = async (uid) => {
+            const myRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userData.username);
+            const targetRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+            
+            let myFollowing = [...userData.following];
+            let theirFollowers = [...users[uid].followers];
+
+            if (myFollowing.includes(uid)) {
+                myFollowing = myFollowing.filter(x => x !== uid);
+                theirFollowers = theirFollowers.filter(x => x !== userData.username);
+            } else {
+                myFollowing.push(uid);
+                theirFollowers.push(userData.username);
+            }
+
+            await updateDoc(myRef, { following: myFollowing });
+            await updateDoc(targetRef, { followers: theirFollowers });
+            viewUserProfile(uid);
+        };
+
+        window.searchUsers = () => {
+            const queryText = document.getElementById('user-search').value.toLowerCase();
+            const resultsContainer = document.getElementById('user-list-results');
+            
+            if (!queryText) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            const found = Object.keys(users).filter(uid => uid.includes(queryText) || users[uid].displayName.toLowerCase().includes(queryText));
+            
+            resultsContainer.innerHTML = `<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Thedal Mudivugal</h3>` + found.map(uid => {
+                const u = users[uid];
+                return `
+                    <div onclick="viewUserProfile('${uid}')" class="flex items-center gap-3 p-3 glass rounded-xl cursor-pointer">
+                        <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold">${u.displayName[0].toUpperCase()}</div>
+                        <div>
+                            <div class="font-bold flex items-center">${u.displayName} ${u.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}</div>
+                            <div class="text-xs text-slate-500">@${u.username}</div>
                         </div>
                     </div>
                 `;
+            }).join('');
+        };
+
+        // File Handling (Mock upload since storage is complex)
+        window.triggerFile = (mode) => {
+            fileMode = mode;
+            document.getElementById('file-input').click();
+        };
+
+        window.handleFile = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // We mock a file upload by using a data URL for small files or just a "Fake Link"
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const fakeUrl = event.target.result; // This is a base64 string
+                if (fileMode === 'global') {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'global_messages'), {
+                        sender: userData.username,
+                        text: `Sent a file: ${file.name}`,
+                        fileUrl: "#", 
+                        timestamp: serverTimestamp()
+                    });
+                } else {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `chat_${activePrivateChatId}`), {
+                        sender: userData.username,
+                        text: `Sent a file: ${file.name}`,
+                        fileUrl: "#",
+                        timestamp: serverTimestamp()
+                    });
+                }
+                showToast("File attached successfully");
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Admin Dash
+        const renderAdminUsers = () => {
+            if (!userData?.isAdmin) return;
+            const container = document.getElementById('admin-user-list');
+            container.innerHTML = Object.keys(users).map(uid => {
+                const u = users[uid];
+                return `
+                    <div class="p-3 glass rounded-xl flex items-center justify-between">
+                        <div>
+                            <div class="font-bold">${u.displayName} (@${u.username})</div>
+                            <div class="text-[10px] text-slate-500">Verified: ${u.verified}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="toggleVerify('${uid}')" class="bg-blue-600 text-[10px] px-2 py-1 rounded">Verify</button>
+                            <button onclick="deleteUserPrompt('${uid}')" class="bg-red-600 text-[10px] px-2 py-1 rounded">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.toggleVerify = async (uid) => {
+            const u = users[uid];
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), {
+                verified: !u.verified
             });
-            hist.scrollTop = hist.scrollHeight;
-        });
-    };
+        };
 
-    window.showModal = (text) => {
-        const div = document.createElement('div');
-        div.className = "fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center text-white";
-        div.innerHTML = `
-            <div class="animate-pulse flex flex-col items-center">
-                <i class="fa-solid fa-phone-volume text-6xl mb-6 text-indigo-400"></i>
-                <p class="text-xl font-bold mb-10">${text}</p>
-                <button onclick="this.parentElement.parentElement.remove()" class="bg-red-500 w-16 h-16 rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-phone-slash text-2xl"></i>
-                </button>
-            </div>
-        `;
-        document.body.appendChild(div);
-    };
+        window.deleteUserPrompt = async (uid) => {
+            if (uid === ADMIN_USER) return alert("Admin-ai delete seiya mudiyathu!");
+            if (confirm(`User ${uid}-ai delete seiyava?`)) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid));
+            }
+        };
 
-</script>
+        const updateCounts = () => {
+            document.getElementById('count-users').innerText = Object.keys(users).length;
+            document.getElementById('count-chats').innerText = "Realtime";
+        };
+
+        window.logout = () => {
+            localStorage.removeItem('dharshini_user');
+            location.reload();
+        };
+
+        const showToast = (msg) => {
+            const toast = document.getElementById('notification-toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        };
+
+        // UI Updates
+        const updateProfileUI = () => {
+            // Check if there's any state that needs updating when current user data changes
+        };
+
+        window.editProfilePrompt = async () => {
+            const newName = prompt("Ungal puthiya Display Name nuliya:", userData.displayName);
+            if (newName) {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', userData.username), {
+                    displayName: newName
+                });
+            }
+        };
+
+        // Auto-login if session exists
+        const savedUser = localStorage.getItem('dharshini_user');
+        if (savedUser) {
+            initApp(savedUser);
+        }
+
+    </script>
 </body>
 </html>
 
