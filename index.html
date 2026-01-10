@@ -53,15 +53,17 @@
             <div class="space-y-4 text-left">
                 <div>
                     <label class="block text-sm font-medium mb-1">Username</label>
-                    <input type="text" id="auth-username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Username ..">
+                    <input type="text" id="auth-username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Username nuliya...">
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">Password</label>
-                    <input type="password" id="auth-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Password ..">
+                    <input type="password" id="auth-password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Password nuliya...">
                 </div>
-                <button onclick="handleAuth()" id="auth-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors py-3 rounded-xl font-bold mt-4 shadow-lg">Login / Sign Up</button>
+                <button onclick="handleAuth()" id="auth-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors py-3 rounded-xl font-bold mt-4 shadow-lg flex items-center justify-center">
+                    <span id="auth-text">Login / Sign Up</span>
+                </button>
             </div>
-            <p class="mt-6 text-xs text-slate-500">Admin username: dharshini</p>
+            <p class="mt-6 text-xs text-slate-500">Admin username: dharshini | Trichy</p>
         </div>
     </div>
 
@@ -94,16 +96,13 @@
             <div id="tab-inbox" class="tab-content active p-4 space-y-4">
                 <h2 class="text-lg font-bold mb-2">Ungal Inbox</h2>
                 <div id="chat-list" class="space-y-3">
-                    <!-- Chats will appear here -->
-                    <div class="text-center text-slate-500 mt-10">Conversations ethuvum illai.</div>
+                    <div class="text-center text-slate-500 mt-10">Loading chats...</div>
                 </div>
             </div>
 
             <!-- Global Chat Tab -->
             <div id="tab-global" class="tab-content p-4 flex flex-col h-full">
-                <div id="global-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 flex flex-col">
-                    <!-- Messages here -->
-                </div>
+                <div id="global-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 flex flex-col"></div>
                 <div class="flex items-center gap-2 p-2 glass rounded-2xl">
                     <button onclick="triggerFile('global')" class="text-slate-400 p-2"><i class="fas fa-paperclip"></i></button>
                     <input type="text" id="global-input" placeholder="Yellarkum message pannu..." class="flex-1 bg-transparent border-none focus:outline-none text-sm px-2">
@@ -113,12 +112,8 @@
 
             <!-- Profile / Explore Tab -->
             <div id="tab-profile" class="tab-content p-4 overflow-y-auto">
-                <div id="profile-view" class="space-y-6">
-                    <!-- User own profile or searched profiles appear here -->
-                </div>
-                <div id="user-list-results" class="mt-8 space-y-4">
-                    <!-- Search results appear here -->
-                </div>
+                <div id="profile-view" class="space-y-6"></div>
+                <div id="user-list-results" class="mt-8 space-y-4"></div>
             </div>
 
             <!-- Private Chat Window (Modal Overlay) -->
@@ -132,7 +127,7 @@
                                 <span id="pc-name" class="font-bold">Username</span>
                                 <span id="pc-verified" class="hidden verified-badge"><i class="fas fa-check-circle text-[10px]"></i></span>
                             </div>
-                            <span id="pc-status" class="text-[10px] text-slate-500">Offline</span>
+                            <span id="pc-status" class="text-[10px] text-slate-500">Active</span>
                         </div>
                     </div>
                 </div>
@@ -155,14 +150,12 @@
                         <div id="count-users" class="text-2xl font-bold">0</div>
                     </div>
                     <div class="glass p-4 rounded-2xl">
-                        <div class="text-xs text-slate-400">Total Chats</div>
-                        <div id="count-chats" class="text-2xl font-bold">0</div>
+                        <div class="text-xs text-slate-400">System Status</div>
+                        <div class="text-green-400 font-bold">Online</div>
                     </div>
                 </div>
-                <h3 class="font-bold mb-2">User Database (Edit)</h3>
-                <div id="admin-user-list" class="space-y-3">
-                    <!-- Users with Edit buttons -->
-                </div>
+                <h3 class="font-bold mb-2">User Database</h3>
+                <div id="admin-user-list" class="space-y-3"></div>
             </div>
 
         </main>
@@ -190,7 +183,7 @@
     <!-- Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, onSnapshot, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -206,77 +199,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dharshini-chat';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dharshini-chat-v2';
 
         // State
-        let currentUser = null;
         let userData = null;
         let users = {};
         let activePrivateChatId = null;
-        let activeChatTargetId = null;
-        let fileMode = 'global'; // 'global' or 'private'
+        let fileMode = 'global';
 
-        // Constants
         const ADMIN_USER = "dharshini";
         const ADMIN_PASS = "dharshini.com";
 
-        // Auth Logic
-        window.handleAuth = async () => {
-            const username = document.getElementById('auth-username').value.trim().toLowerCase();
-            const password = document.getElementById('auth-password').value;
-
-            if (!username || !password) return alert("Username matrum Password nuliya vendum");
-
-            // Check if user exists or sign up
-            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', username);
-            const userSnap = await getDoc(userRef);
-
-            if (userSnap.exists()) {
-                if (userSnap.data().password !== password) {
-                    return alert("Thavarana password!");
-                }
-            } else {
-                // Sign up
-                await setDoc(userRef, {
-                    username: username,
-                    password: password,
-                    displayName: username,
-                    verified: (username === ADMIN_USER),
-                    followers: [],
-                    following: [],
-                    lastSeen: serverTimestamp(),
-                    isAdmin: (username === ADMIN_USER)
-                });
-            }
-
-            // Auth with Firebase
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-
-            localStorage.setItem('dharshini_user', username);
-            initApp(username);
-        };
-
-        const initApp = async (username) => {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-
-            // Set current user state
+        // Global Listeners Initializer
+        const startListeners = (username) => {
             const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', username);
             
-            // Real-time user data
+            // 1. Current User Sync
             onSnapshot(userRef, (snap) => {
-                userData = snap.data();
-                if (userData.isAdmin) {
-                    document.getElementById('admin-dash-btn').classList.remove('hidden');
+                if(snap.exists()) {
+                    userData = snap.data();
+                    if (userData.isAdmin) {
+                        document.getElementById('admin-dash-btn').classList.remove('hidden');
+                    }
+                    if (document.getElementById('tab-profile').classList.contains('active')) {
+                        renderMyProfile();
+                    }
                 }
-                updateProfileUI();
-            });
+            }, (err) => console.error("User snap error", err));
 
-            // Sync all users
+            // 2. All Users Sync
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'users'), (snap) => {
                 const userList = {};
                 snap.forEach(doc => { userList[doc.id] = doc.data(); });
@@ -284,17 +235,77 @@
                 renderInbox();
                 renderAdminUsers();
                 updateCounts();
-            });
+            }, (err) => console.error("Collection snap error", err));
 
-            // Global Chat Listener
+            // 3. Global Chat
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'global_messages'), (snap) => {
-                renderGlobalMessages(snap.docs.map(d => d.data()).sort((a, b) => a.timestamp - b.timestamp));
-            });
+                const msgs = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => (a.timestamp?.toMillis?.() || 0) - (b.timestamp?.toMillis?.() || 0));
+                renderGlobalMessages(msgs);
+            }, (err) => console.error("Global chat error", err));
 
-            // Online pulse
+            // Presence Pulse
             setInterval(() => {
-                updateDoc(userRef, { lastSeen: Date.now() });
-            }, 30000);
+                if (userData) {
+                    updateDoc(userRef, { lastSeen: Date.now() }).catch(() => {});
+                }
+            }, 20000);
+        };
+
+        // Auth Logic
+        window.handleAuth = async () => {
+            const username = document.getElementById('auth-username').value.trim().toLowerCase();
+            const password = document.getElementById('auth-password').value;
+            const authBtn = document.getElementById('auth-btn');
+            const authText = document.getElementById('auth-text');
+
+            if (!username || !password) return alert("Username & Password nuliya vendum");
+
+            authBtn.disabled = true;
+            authText.innerText = "Connecting...";
+
+            try {
+                // Wait for Firebase Auth
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', username);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    if (userSnap.data().password !== password) {
+                        authBtn.disabled = false;
+                        authText.innerText = "Login / Sign Up";
+                        return alert("Thavarana password!");
+                    }
+                } else {
+                    // Sign up
+                    const isSystemAdmin = (username === ADMIN_USER && password === ADMIN_PASS);
+                    await setDoc(userRef, {
+                        username: username,
+                        password: password,
+                        displayName: username,
+                        verified: isSystemAdmin,
+                        followers: [],
+                        following: [],
+                        lastSeen: Date.now(),
+                        isAdmin: isSystemAdmin
+                    });
+                }
+
+                localStorage.setItem('dharshini_user', username);
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                startListeners(username);
+
+            } catch (error) {
+                console.error("Auth Error:", error);
+                alert("Login failed: " + error.message);
+                authBtn.disabled = false;
+                authText.innerText = "Login / Sign Up";
+            }
         };
 
         // Navigation
@@ -306,29 +317,28 @@
             const navBtn = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
             if (navBtn) navBtn.classList.add('text-indigo-400');
 
-            if (tabName === 'global' || tabName === 'profile') {
-                document.getElementById('search-section').classList.remove('hidden');
-            } else {
-                document.getElementById('search-section').classList.add('hidden');
-            }
+            document.getElementById('search-section').classList.toggle('hidden', (tabName === 'inbox' || tabName === 'admin'));
 
             if (tabName === 'profile') renderMyProfile();
         };
 
-        // Render Functions
+        // Renderers
         const renderGlobalMessages = (msgs) => {
             const container = document.getElementById('global-messages');
+            if(!container) return;
             const atBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
             
             container.innerHTML = msgs.map(m => {
-                const isMe = m.sender === userData.username;
+                const isMe = m.sender === userData?.username;
                 const senderData = users[m.sender] || { displayName: m.sender };
+                const timeStr = m.timestamp ? new Date(m.timestamp.toMillis()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
+                
                 return `
                     <div class="message-bubble ${isMe ? 'sent' : 'received'}">
                         ${!isMe ? `<div class="text-[10px] font-bold text-indigo-300 mb-1">${senderData.displayName} ${senderData.verified ? '<i class="fas fa-check-circle"></i>' : ''}</div>` : ''}
                         <div class="text-sm">${m.text || ''}</div>
-                        ${m.fileUrl ? `<div class="mt-2"><a href="${m.fileUrl}" target="_blank" class="text-xs underline flex items-center gap-1"><i class="fas fa-file"></i> File</a></div>` : ''}
-                        <div class="text-[8px] opacity-50 text-right mt-1">${new Date(m.timestamp?.toMillis ? m.timestamp.toMillis() : Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                        ${m.fileUrl && m.fileUrl !== "#" ? `<div class="mt-2"><a href="${m.fileUrl}" target="_blank" class="text-xs underline flex items-center gap-1"><i class="fas fa-file"></i> File</a></div>` : ''}
+                        <div class="text-[8px] opacity-50 text-right mt-1">${timeStr}</div>
                     </div>
                 `;
             }).join('');
@@ -338,14 +348,20 @@
 
         const renderInbox = () => {
             const container = document.getElementById('chat-list');
+            if(!userData) return;
+
             const inboxUsers = Object.keys(users).filter(id => id !== userData.username);
             
-            // Logic: Always show Admin, and show anyone currently followed or who has messaged
-            // For simplicity, we show followed users and Admin
+            // Show Admin always, plus people you follow
             const filtered = inboxUsers.filter(uid => {
                 const u = users[uid];
                 return u.isAdmin || userData.following.includes(uid);
             });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-500 mt-10">Inbox kaaliyakullathu. Search-il yaraiyavathu theduga.</div>';
+                return;
+            }
 
             container.innerHTML = filtered.map(uid => {
                 const u = users[uid];
@@ -361,7 +377,7 @@
                                 ${u.displayName}
                                 ${u.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                             </div>
-                            <div class="text-xs text-slate-500">${isOnline ? 'Online' : 'Offline'}</div>
+                            <div class="text-xs text-slate-500">${isOnline ? 'Online' : 'Active lately'}</div>
                         </div>
                         <i class="fas fa-chevron-right text-slate-600"></i>
                     </div>
@@ -369,19 +385,15 @@
             }).join('');
         };
 
-        const renderMyProfile = () => {
-            viewUserProfile(userData.username);
-        };
-
         window.viewUserProfile = (uid) => {
             const u = users[uid];
             if (!u) return;
             const container = document.getElementById('profile-view');
-            const isMe = uid === userData.username;
-            const isFollowing = userData.following.includes(uid);
+            const isMe = uid === userData?.username;
+            const isFollowing = userData?.following?.includes(uid);
 
             container.innerHTML = `
-                <div class="text-center">
+                <div class="text-center p-4">
                     <div class="w-24 h-24 mx-auto rounded-full bg-indigo-600 flex items-center justify-center text-4xl font-bold mb-4 shadow-xl">
                         ${u.displayName[0].toUpperCase()}
                     </div>
@@ -393,11 +405,11 @@
                     
                     <div class="flex justify-center gap-8 my-6">
                         <div class="text-center">
-                            <div class="font-bold">${u.followers.length}</div>
+                            <div class="font-bold">${u.followers?.length || 0}</div>
                             <div class="text-xs text-slate-500">Followers</div>
                         </div>
                         <div class="text-center">
-                            <div class="font-bold">${u.following.length}</div>
+                            <div class="font-bold">${u.following?.length || 0}</div>
                             <div class="text-xs text-slate-500">Following</div>
                         </div>
                     </div>
@@ -416,14 +428,18 @@
                     </div>
                 </div>
             `;
+            document.getElementById('user-list-results').innerHTML = '';
         };
 
-        // Actions
+        const renderMyProfile = () => {
+            if(userData) viewUserProfile(userData.username);
+        };
+
+        // Message Handlers
         window.sendGlobalMessage = async () => {
             const input = document.getElementById('global-input');
             const text = input.value.trim();
             if (!text) return;
-
             input.value = '';
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'global_messages'), {
                 sender: userData.username,
@@ -434,7 +450,7 @@
 
         window.openPrivateChat = (uid) => {
             const u = users[uid];
-            activeChatTargetId = uid;
+            if(!u) return;
             document.getElementById('pc-name').innerText = u.displayName;
             document.getElementById('pc-avatar').innerText = u.displayName[0].toUpperCase();
             document.getElementById('pc-verified').classList.toggle('hidden', !u.verified);
@@ -442,38 +458,29 @@
             const pcWindow = document.getElementById('private-chat');
             pcWindow.classList.remove('hidden');
 
-            // Find or create chat room ID
             const ids = [userData.username, uid].sort();
-            const chatId = ids.join('_');
-            activePrivateChatId = chatId;
+            activePrivateChatId = ids.join('_');
 
-            // Load messages
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', `chat_${chatId}`), (snap) => {
-                const msgs = snap.docs.map(d => d.data()).sort((a,b) => a.timestamp - b.timestamp);
-                renderPrivateMessages(msgs);
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', `chat_${activePrivateChatId}`), (snap) => {
+                const msgs = snap.docs.map(d => d.data()).sort((a,b) => (a.timestamp?.toMillis?.() || 0) - (b.timestamp?.toMillis?.() || 0));
+                const container = document.getElementById('pc-messages');
+                container.innerHTML = msgs.map(m => {
+                    const isMe = m.sender === userData.username;
+                    return `
+                        <div class="message-bubble ${isMe ? 'sent' : 'received'}">
+                            <div class="text-sm">${m.text || ''}</div>
+                            <div class="text-[8px] opacity-50 text-right mt-1">${m.timestamp ? new Date(m.timestamp.toMillis()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...'}</div>
+                        </div>
+                    `;
+                }).join('');
+                container.scrollTop = container.scrollHeight;
             });
-        };
-
-        const renderPrivateMessages = (msgs) => {
-            const container = document.getElementById('pc-messages');
-            container.innerHTML = msgs.map(m => {
-                const isMe = m.sender === userData.username;
-                return `
-                    <div class="message-bubble ${isMe ? 'sent' : 'received'}">
-                        <div class="text-sm">${m.text || ''}</div>
-                        ${m.fileUrl ? `<div class="mt-2"><a href="${m.fileUrl}" target="_blank" class="text-xs underline flex items-center gap-1"><i class="fas fa-file"></i> Open File</a></div>` : ''}
-                        <div class="text-[8px] opacity-50 text-right mt-1">${new Date(m.timestamp?.toMillis ? m.timestamp.toMillis() : Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                    </div>
-                `;
-            }).join('');
-            container.scrollTop = container.scrollHeight;
         };
 
         window.sendPrivateMessage = async () => {
             const input = document.getElementById('pc-input');
             const text = input.value.trim();
             if (!text || !activePrivateChatId) return;
-
             input.value = '';
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `chat_${activePrivateChatId}`), {
                 sender: userData.username,
@@ -486,12 +493,13 @@
             document.getElementById('private-chat').classList.add('hidden');
         };
 
+        // Social
         window.toggleFollow = async (uid) => {
             const myRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', userData.username);
             const targetRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
             
-            let myFollowing = [...userData.following];
-            let theirFollowers = [...users[uid].followers];
+            let myFollowing = [...(userData.following || [])];
+            let theirFollowers = [...(users[uid].followers || [])];
 
             if (myFollowing.includes(uid)) {
                 myFollowing = myFollowing.filter(x => x !== uid);
@@ -503,24 +511,18 @@
 
             await updateDoc(myRef, { following: myFollowing });
             await updateDoc(targetRef, { followers: theirFollowers });
-            viewUserProfile(uid);
         };
 
         window.searchUsers = () => {
             const queryText = document.getElementById('user-search').value.toLowerCase();
             const resultsContainer = document.getElementById('user-list-results');
-            
-            if (!queryText) {
-                resultsContainer.innerHTML = '';
-                return;
-            }
+            if (!queryText) { resultsContainer.innerHTML = ''; return; }
 
             const found = Object.keys(users).filter(uid => uid.includes(queryText) || users[uid].displayName.toLowerCase().includes(queryText));
-            
-            resultsContainer.innerHTML = `<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Thedal Mudivugal</h3>` + found.map(uid => {
+            resultsContainer.innerHTML = `<h3 class="text-xs font-bold text-slate-500 uppercase px-2 mb-2">Results</h3>` + found.map(uid => {
                 const u = users[uid];
                 return `
-                    <div onclick="viewUserProfile('${uid}')" class="flex items-center gap-3 p-3 glass rounded-xl cursor-pointer">
+                    <div onclick="viewUserProfile('${uid}')" class="flex items-center gap-3 p-3 glass rounded-xl cursor-pointer mx-2">
                         <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold">${u.displayName[0].toUpperCase()}</div>
                         <div>
                             <div class="font-bold flex items-center">${u.displayName} ${u.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}</div>
@@ -531,41 +533,7 @@
             }).join('');
         };
 
-        // File Handling (Mock upload since storage is complex)
-        window.triggerFile = (mode) => {
-            fileMode = mode;
-            document.getElementById('file-input').click();
-        };
-
-        window.handleFile = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            // We mock a file upload by using a data URL for small files or just a "Fake Link"
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const fakeUrl = event.target.result; // This is a base64 string
-                if (fileMode === 'global') {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'global_messages'), {
-                        sender: userData.username,
-                        text: `Sent a file: ${file.name}`,
-                        fileUrl: "#", 
-                        timestamp: serverTimestamp()
-                    });
-                } else {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `chat_${activePrivateChatId}`), {
-                        sender: userData.username,
-                        text: `Sent a file: ${file.name}`,
-                        fileUrl: "#",
-                        timestamp: serverTimestamp()
-                    });
-                }
-                showToast("File attached successfully");
-            };
-            reader.readAsDataURL(file);
-        };
-
-        // Admin Dash
+        // Admin
         const renderAdminUsers = () => {
             if (!userData?.isAdmin) return;
             const container = document.getElementById('admin-user-list');
@@ -574,12 +542,12 @@
                 return `
                     <div class="p-3 glass rounded-xl flex items-center justify-between">
                         <div>
-                            <div class="font-bold">${u.displayName} (@${u.username})</div>
-                            <div class="text-[10px] text-slate-500">Verified: ${u.verified}</div>
+                            <div class="font-bold text-sm">${u.displayName} (@${u.username})</div>
+                            <div class="text-[10px] text-slate-500">Verified: ${u.verified} | Admin: ${u.isAdmin}</div>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="toggleVerify('${uid}')" class="bg-blue-600 text-[10px] px-2 py-1 rounded">Verify</button>
-                            <button onclick="deleteUserPrompt('${uid}')" class="bg-red-600 text-[10px] px-2 py-1 rounded">Delete</button>
+                            <button onclick="toggleVerify('${uid}')" class="bg-blue-600/30 text-blue-400 border border-blue-500/50 text-[10px] px-2 py-1 rounded">Verify</button>
+                            <button onclick="deleteUserPrompt('${uid}')" class="bg-red-600/30 text-red-400 border border-red-500/50 text-[10px] px-2 py-1 rounded">Del</button>
                         </div>
                     </div>
                 `;
@@ -587,22 +555,22 @@
         };
 
         window.toggleVerify = async (uid) => {
-            const u = users[uid];
             await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), {
-                verified: !u.verified
+                verified: !users[uid].verified
             });
         };
 
         window.deleteUserPrompt = async (uid) => {
             if (uid === ADMIN_USER) return alert("Admin-ai delete seiya mudiyathu!");
-            if (confirm(`User ${uid}-ai delete seiyava?`)) {
+            if (confirm(`User ${uid}-ai permanent-aga delete seiyava?`)) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid));
             }
         };
 
         const updateCounts = () => {
-            document.getElementById('count-users').innerText = Object.keys(users).length;
-            document.getElementById('count-chats').innerText = "Realtime";
+            const count = Object.keys(users).length;
+            const el = document.getElementById('count-users');
+            if(el) el.innerText = count;
         };
 
         window.logout = () => {
@@ -610,32 +578,15 @@
             location.reload();
         };
 
-        const showToast = (msg) => {
-            const toast = document.getElementById('notification-toast');
-            document.getElementById('toast-msg').innerText = msg;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        };
-
-        // UI Updates
-        const updateProfileUI = () => {
-            // Check if there's any state that needs updating when current user data changes
-        };
-
-        window.editProfilePrompt = async () => {
-            const newName = prompt("Ungal puthiya Display Name nuliya:", userData.displayName);
-            if (newName) {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', userData.username), {
-                    displayName: newName
-                });
+        // Auto-login logic
+        onAuthStateChanged(auth, (user) => {
+            const savedUser = localStorage.getItem('dharshini_user');
+            if (user && savedUser) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                startListeners(savedUser);
             }
-        };
-
-        // Auto-login if session exists
-        const savedUser = localStorage.getItem('dharshini_user');
-        if (savedUser) {
-            initApp(savedUser);
-        }
+        });
 
     </script>
 </body>
